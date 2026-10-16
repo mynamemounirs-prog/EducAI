@@ -29,7 +29,7 @@ Le workflow `.github/workflows/deploy-pages.yml` compile et déploie automatique
 
 ## Connexion Google
 
-Le parcours Google est intégré via Firebase Authentication, avec session en mémoire et déconnexion. Il nécessite la configuration publique d’un projet Firebase avec Google activé. Suivez [le guide de configuration Google](docs/GOOGLE_AUTH.md), puis redéployez depuis GitHub Actions. Sans configuration, le bouton indique clairement que Google reste à activer. Les formulaires e-mail restent en démonstration.
+Le parcours Google est intégré via Firebase Authentication, avec session en mémoire et déconnexion. Il nécessite la configuration publique d’un projet Firebase avec Google activé. Suivez [le guide de configuration Google](docs/GOOGLE_AUTH.md), puis redéployez depuis GitHub Actions. Sans configuration, le bouton Google est masqué ; aucune configuration n’est nécessaire pour la démonstration. Les formulaires e-mail restent en démonstration.
 
 ## Visuel et animation
 

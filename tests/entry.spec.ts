@@ -54,10 +54,11 @@ test('robot articulé animé, réaction au clic et réduction des animations',as
  for(const selector of ['.robot-float','.robot-head','.robot-eyes','.robot-wave-arm'])expect(await page.locator(selector).evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
 });
 
-test('Google non configuré reste honnête et ne crée pas de session',async({page})=>{
+test('Google masqué sans configuration, démonstration accessible',async({page})=>{
  await page.goto('/');await page.locator('.role-card').first().click();
- await page.getByRole('button',{name:'Continuer avec Google'}).click();
- await expect(page.getByRole('alert')).toContainText('après son activation');
- await expect(page.getByRole('dialog')).toBeVisible();
- await page.getByRole('tab',{name:'Créer un compte'}).click();await expect(page.getByRole('button',{name:'Continuer avec Google'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Continuer avec Google'})).toHaveCount(0);
+ await page.getByRole('tab',{name:'Créer un compte'}).click();
+ await expect(page.getByRole('button',{name:'Continuer avec Google'})).toHaveCount(0);
+ await page.getByRole('button',{name:'Continuer en démonstration'}).click();
+ await expect(page.getByRole('heading',{name:'Bienvenue dans votre espace Enseignant'})).toBeVisible();
 });
