@@ -15,7 +15,7 @@ Le serveur écoute sur le port 5173. `npm run build` vérifie TypeScript et prod
 
 Accueil adaptatif, avatar SVG/CSS autonome animé, thèmes sombre et clair mémorisés, trois profils, tarifs, formulaires avec validation, affichage du mot de passe, récupération simulée, fenêtres accessibles et espaces de démonstration. Seuls thème, profil et offre sont conservés localement.
 
-Aucune authentification réelle, IA connectée ou facturation. Les formulaires ne stockent ni ne transmettent les identifiants. Le bouton « Continuer en démonstration » ouvre explicitement l’espace choisi. Les conditions et la confidentialité sont des documents provisoires. Les capacités des offres sont une feuille de route.
+La connexion Google peut être activée avec Firebase (guide ci-dessous). Les formulaires e-mail restent en démonstration et ne stockent ni ne transmettent les identifiants. Aucun service IA ni facturation réelle. Le bouton « Continuer en démonstration » ouvre explicitement l’espace choisi, sans identité réelle. Les conditions et la confidentialité sont des documents provisoires. Les capacités des offres sont une feuille de route.
 
 L’adaptateur `authService` dans `src/services/auth.ts` constitue le point de raccordement de la future authentification. Les composants `Logo`, `Avatar`, `Auth`, `Pricing` et `Modal` sont séparés dans `src/components/`.
 
@@ -26,3 +26,11 @@ L’adaptateur `authService` dans `src/services/auth.ts` constitue le point de r
 ## Publication GitHub Pages
 
 Le workflow `.github/workflows/deploy-pages.yml` compile et déploie automatiquement chaque mise à jour de `main`. Dans GitHub, ouvrir **Settings → Pages → Build and deployment → Source**, choisir **GitHub Actions**. Si nécessaire, lancer ensuite **Actions → Deploy FarabAi to GitHub Pages → Run workflow**. L’adresse publique est affichée par le déploiement réussi. Aucun secret applicatif ni carte bancaire n’est nécessaire.
+
+## Connexion Google
+
+Le parcours Google est intégré via Firebase Authentication, avec session en mémoire et déconnexion. Il nécessite la configuration publique d’un projet Firebase avec Google activé. Suivez [le guide de configuration Google](docs/GOOGLE_AUTH.md), puis redéployez depuis GitHub Actions. Sans configuration, le bouton indique clairement que Google reste à activer. Les formulaires e-mail restent en démonstration.
+
+## Visuel et animation
+
+Le décor de bibliothèque violet et or est un fichier WebP local dans `public/`. Le robot est un SVG autonome articulé (main, tête, yeux et corps animés séparément) qui suit le pointeur et réagit au clic. La préférence système de réduction des animations est respectée. Aucun service d’image ni de modèle IA n’est nécessaire à son affichage.

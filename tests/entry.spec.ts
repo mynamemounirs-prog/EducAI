@@ -30,7 +30,7 @@ test('tarifs et profil Pro, fermeture et focus',async({page})=>{
 });
 test('rendu ordinateur et mobile dans les deux thèmes',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});
- for(const width of [1440,390]){
+ for(const width of [1440,768,390]){
   await page.setViewportSize({width,height:width===1440?900:844});await page.goto('/');
   for(const theme of ['dark','light']){
    if(await page.locator('html').getAttribute('data-theme')!==theme)await page.getByRole('button',{name:/Activer le thème/}).click();
@@ -40,4 +40,24 @@ test('rendu ordinateur et mobile dans les deux thèmes',async({page})=>{
    await page.getByRole('button',{name:'Tarifs',exact:true}).click();expect(await page.getByRole('dialog').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBeTruthy();await page.keyboard.press('Escape');
   }
  }
+});
+
+test('robot articulé animé, réaction au clic et réduction des animations',async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await page.goto('/');
+ const robot=page.getByRole('button',{name:'Faire coucou à FarabAi'});
+ const before=await page.locator('.robot-float').evaluate(el=>getComputedStyle(el).transform);
+ await page.waitForTimeout(650);
+ expect(await page.locator('.robot-float').evaluate(el=>getComputedStyle(el).transform)).not.toBe(before);
+ await robot.click();await expect(robot).toHaveClass(/excited/);
+ expect(await page.locator('.robot-wave-arm').evaluate(el=>getComputedStyle(el).animationDuration)).toBe('0.9s');
+ await page.emulateMedia({reducedMotion:'reduce'});
+ for(const selector of ['.robot-float','.robot-head','.robot-eyes','.robot-wave-arm'])expect(await page.locator(selector).evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+});
+
+test('Google non configuré reste honnête et ne crée pas de session',async({page})=>{
+ await page.goto('/');await page.locator('.role-card').first().click();
+ await page.getByRole('button',{name:'Continuer avec Google'}).click();
+ await expect(page.getByRole('alert')).toContainText('après son activation');
+ await expect(page.getByRole('dialog')).toBeVisible();
+ await page.getByRole('tab',{name:'Créer un compte'}).click();await expect(page.getByRole('button',{name:'Continuer avec Google'})).toBeVisible();
 });
