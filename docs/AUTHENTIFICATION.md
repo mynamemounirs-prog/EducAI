@@ -74,3 +74,10 @@ Le site documentaire Firebase était bloqué par le proxy de cet environnement. 
 Le formulaire affiche maintenant un message visible et met le focus sur ce message pour chaque champ invalide, mot de passe trop court, confirmation différente ou case des conditions non cochée. Sans configuration Firebase intégrée au build, un clic valide affiche explicitement l’erreur et la nécessité de redéployer, au lieu de laisser un bouton désactivé sans retour.
 
 Si un compte est créé mais Firestore ne répond pas, le compte n’est pas recréé : l’écran de confirmation est affiché, l’e-mail est demandé indépendamment et un avertissement propose de finaliser le profil. Les lectures et écritures de profil ont une attente limitée ; une écriture non confirmée peut encore aboutir et ne doit pas être interprétée comme un échec définitif. Réessayez son chargement avant de recommencer.
+
+
+## Vérifier la version réellement publiée
+
+Le pied de page affiche `version` suivi des sept premiers caractères du commit compilé par GitHub Actions. Le fichier public `/EducAI/build-info.json` contient cette version, la date du build et uniquement trois indicateurs booléens de présence des variables Firebase. Il ne contient aucune valeur de configuration, aucun mot de passe ni jeton. Ces indicateurs ne prouvent pas que la configuration Firebase est valide, seulement qu’elle a été renseignée dans le build.
+
+Si le site montre encore un bouton désactivé « Créer mon compte » sans « Veuillez patienter… », il peut s’agir d’un ancien build antérieur au correctif. Vérifiez le commit du dernier déploiement réussi, lancez **Run workflow** sur **main** (ne relancez pas un ancien run associé à un vieux commit), puis rechargez le site.
