@@ -1,36 +1,40 @@
 # FarabAi
 
-Accueil et parcours d’entrée en React, TypeScript, Tailwind CSS et Vite.
+Plateforme éducative React, TypeScript, Tailwind et Vite, avec identité violet/or, décor local et avatar SVG animé.
 
 ## Lancer
 
 ```sh
 npm ci
+cp .env.example .env.local
+# Renseignez la configuration publique Firebase dans .env.local.
 npm run dev
 ```
 
-Le serveur écoute sur le port 5173. `npm run build` vérifie TypeScript et produit `dist/`. `npm run preview` sert la compilation.
+Le serveur utilise le port 5173. Sans configuration Firebase, l’accueil et les tarifs restent accessibles mais le service de compte est explicitement indisponible. Aucun compte ni e-mail n’est simulé. `npm run build` vérifie TypeScript et produit `dist/` ; `npm run preview` sert la compilation.
 
-## Parcours disponibles
+## Fonctionnalités
 
-Accueil adaptatif, avatar SVG/CSS autonome animé, thèmes sombre et clair mémorisés, trois profils, tarifs, formulaires avec validation, affichage du mot de passe, récupération simulée, fenêtres accessibles et espaces de démonstration. Seuls thème, profil et offre sont conservés localement.
+- Accueil adaptatif, avatar articulé, thèmes sombre/clair et préférences locales non sensibles.
+- Authentification Firebase e-mail/mot de passe : inscription, prénom et profil Firestore protégé, connexion, session persistante, déconnexion, confirmation d’e-mail, mot de passe oublié et page de réinitialisation.
+- Pages privées protégées par session, confirmation éventuelle et profil valide ; règles d’accès côté Firestore.
+- Quatre offres et liens Stripe centralisés ; offre conservée pendant l’authentification. Aucun paiement ni retour d’URL n’accorde automatiquement des droits.
+- Fenêtres à contenu défilant avec en-tête et fermeture accessibles, navigation clavier et réduction des animations respectée.
 
-La connexion Google peut être activée avec Firebase (guide ci-dessous). Les formulaires e-mail restent en démonstration et ne stockent ni ne transmettent les identifiants. Aucun service IA ni facturation réelle. Le bouton « Continuer en démonstration » ouvre explicitement l’espace choisi, sans identité réelle. Les conditions et la confidentialité sont des documents provisoires. Les capacités des offres sont une feuille de route.
+Google reste de côté. Les outils pédagogiques ne sont pas encore développés. L’activation automatique des abonnements doit être raccordée via des webhooks vérifiés côté serveur. Les documents juridiques restent provisoires.
 
-L’adaptateur `authService` dans `src/services/auth.ts` constitue le point de raccordement de la future authentification. Les composants `Logo`, `Avatar`, `Auth`, `Pricing` et `Modal` sont séparés dans `src/components/`.
+## Configuration et déploiement
 
-## Vérifier
+- [Comptes Firebase, profils protégés et URL des e-mails](docs/AUTHENTIFICATION.md)
+- [Paiements Stripe et droits à raccorder](docs/PAIEMENTS.md)
+- [Validation effectuée et émulateurs dans cet environnement](docs/VALIDATION.md)
 
-`npm test` exécute les parcours Playwright, avec Chromium à `/usr/bin/chromium` dans cet environnement. Pour un autre environnement, adaptez `executablePath` dans `playwright.config.ts` à votre navigateur ou utilisez les navigateurs Playwright.
+GitHub Pages déploie chaque mise à jour de `main`. Dans GitHub, **Settings → Pages → Source → GitHub Actions** doit être activé. Les variables Firebase publiques doivent être ajoutées aux Repository variables GitHub Actions ; redéployez après modification.
 
-## Publication GitHub Pages
+## Tests
 
-Le workflow `.github/workflows/deploy-pages.yml` compile et déploie automatiquement chaque mise à jour de `main`. Dans GitHub, ouvrir **Settings → Pages → Build and deployment → Source**, choisir **GitHub Actions**. Si nécessaire, lancer ensuite **Actions → Deploy FarabAi to GitHub Pages → Run workflow**. L’adresse publique est affichée par le déploiement réussi. Aucun secret applicatif ni carte bancaire n’est nécessaire.
+`npm test` vérifie les états non configurés, les accès privés, les préférences, le focus, les fenêtres longues, l’absence de chevauchement sur ordinateur/tablette/mobile dans les deux thèmes, et les animations.
 
-## Connexion Google
+`npm run test:auth:local` utilise Firebase CLI 15.34.0, Java 21+ et les émulateurs officiels Auth/Firestore sur les ports 9099/8080, puis Vite sur 5174. Ces tests créent uniquement des comptes locaux, consomment les codes d’e-mails de l’émulateur, vérifient session, inscription, connexion, déconnexion, réinitialisation, choix d’offre, liens Stripe interceptés et règles Firestore. Ils ne prouvent pas l’envoi d’e-mails ni le fonctionnement de votre projet de production. Aucun paiement réel n’est exécuté. La configuration de test utilise `demo-farabai` et ne peut pas se connecter aux services de production.
 
-Le parcours Google est intégré via Firebase Authentication, avec session en mémoire et déconnexion. Il nécessite la configuration publique d’un projet Firebase avec Google activé. Suivez [le guide de configuration Google](docs/GOOGLE_AUTH.md), puis redéployez depuis GitHub Actions. Sans configuration, le bouton Google est masqué ; aucune configuration n’est nécessaire pour la démonstration. Les formulaires e-mail restent en démonstration.
-
-## Visuel et animation
-
-Le décor de bibliothèque violet et or est un fichier WebP local dans `public/`. Le robot est un SVG autonome articulé (main, tête, yeux et corps animés séparément) qui suit le pointeur et réagit au clic. La préférence système de réduction des animations est respectée. Aucun service d’image ni de modèle IA n’est nécessaire à son affichage.
+Playwright attend Chromium à `/usr/bin/chromium` dans cet environnement. Adaptez `executablePath` dans les deux configurations Playwright pour votre propre navigateur si nécessaire. Les binaires d’émulateurs officiels nécessitent un accès réseau à leur distribution pour le premier téléchargement.

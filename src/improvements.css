@@ -1,0 +1,48 @@
+/* Flowing companion copy: no absolute text may be hidden under the robot or panel. */
+.robot-stage{justify-content:center;gap:12px;padding:10px 14px 10px 0;z-index:auto}
+.stage-motto{position:static;transform:none;text-align:center;font-size:15px;line-height:1.45;align-self:center;flex-shrink:0}
+.stage-motto:after{margin:10px auto 0}
+.robot-speech{position:static;transform:none;white-space:normal;text-align:center;padding:12px 18px;max-width:240px;align-self:center;flex-shrink:0;z-index:auto}
+.robot-wrap{width:100%;max-width:310px;height:auto;margin:0 auto;flex-shrink:0}
+.robot-interaction-hint{font-size:8px;bottom:-4px}
+.welcome-panel{z-index:auto;min-width:0}
+.cinematic-home{min-width:0}.hero-wordmark{overflow-wrap:anywhere}
+/* Keep the title and close control outside the independently scrolling content. */
+.modal{overflow:hidden;max-height:calc(100svh - 28px);padding:0}
+.modal-shell{max-height:inherit;display:flex;flex-direction:column;min-height:0}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:29px 29px 17px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border)}
+.modal-header h2{padding:0;min-width:0;line-height:1.35;font-size:23px;overflow-wrap:anywhere}
+.modal-header .close{position:static;flex-shrink:0;width:34px;height:34px;margin-top:-5px}
+.modal-body{padding:8px 29px 28px;overflow-y:auto;overscroll-behavior:contain;min-height:0;scrollbar-gutter:stable}
+.modal-body .modal-subtitle{margin-top:12px}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+.service-notice{display:flex;align-items:flex-start;gap:10px;background:#b18adb10;border:1px solid var(--border);padding:14px;border-radius:10px;font-size:12px;line-height:1.7;color:var(--muted);margin:15px 0;overflow-wrap:anywhere;text-align:left}
+.service-notice svg{flex-shrink:0;margin-top:2px}
+.form-intro{font-size:12px;line-height:1.7;color:var(--muted);margin:17px 0}
+.back-to-login{display:block;padding:12px;margin:12px auto 0;line-height:1.6}
+.account-panel{width:min(740px,100%);min-width:0;border-radius:28px;padding:35px 40px;background:var(--panel);border:1px solid var(--border);backdrop-filter:blur(20px);text-align:center}
+.account-panel h1{font-size:30px;font-weight:500;line-height:1.4;letter-spacing:-.7px;overflow-wrap:anywhere}
+.account-panel p{line-height:1.8;overflow-wrap:anywhere}
+.account-panel>p{margin:19px 0;font-size:13px}
+.account-panel .space-actions{flex-wrap:wrap;margin-top:24px}
+.account-panel .profile-form{text-align:left;margin:25px auto;max-width:370px}
+.account-panel .form-message{font-size:12px;text-align:left}
+.verification-icon{color:var(--purple);margin:0 auto 20px}
+.profile-form>.secondary{margin-top:12px}.profile-form .field{text-align:left}
+.signout{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:10px;line-height:1.7}
+.email-action{text-align:left;max-width:520px}.email-action h1{margin:15px 0 20px;font-size:27px}.email-action .primary{width:100%}
+.checkout-intent{background:#b18adb0a;border:1px solid var(--border);border-radius:14px;margin-top:25px;padding:19px;text-align:left}
+.checkout-intent h2{font-size:17px;font-weight:500}.checkout-intent p{font-size:12px;color:var(--muted);margin:10px 0 15px}.checkout-intent>a{text-decoration:none;max-width:100%;white-space:normal;line-height:1.5}.checkout-intent>.text-button{display:block;margin:12px 0 0;padding:5px 0}
+.price-card{padding:25px 20px;border-radius:16px;background:linear-gradient(145deg,#ae8bd70a,transparent);border-color:var(--border)}
+.price-card.recommended{border-color:#9c7cbd}
+.price-card.pro-plan{border-color:var(--gold);background:linear-gradient(155deg,#d8b98112,#a47cce0a)}
+.plan-top{align-items:flex-start;min-height:27px;gap:8px;flex-wrap:wrap}.plan-top h3{font-size:17px;line-height:1.5}.plan-top>span{font-size:9px;padding:3px 5px;border:1px solid var(--border);border-radius:4px;white-space:nowrap;margin-top:3px}
+.price{margin:17px 0 12px;font-size:36px;line-height:1.3;font-weight:500;white-space:nowrap}.price small{font-size:12px;margin-left:5px}
+.plan-description{font-size:12px;color:var(--muted);line-height:1.7;min-height:42px;margin-bottom:22px}
+.price-card ul{margin:0 0 18px;flex:1}.price-card li{font-size:11px;line-height:1.8;gap:8px;margin-bottom:13px}.price-card li>span{min-width:0;overflow-wrap:anywhere}.price-card button{font-size:11px;min-height:45px;gap:6px;white-space:normal;line-height:1.5}
+.roadmap{margin:24px 0 0;font-size:11px;line-height:1.9;max-width:none}
+html[data-theme=light] .account-panel{background:#fffaf6eb}
+@media(max-width:1100px){.price-card{padding:23px 15px}.price{font-size:31px}.plan-top>span{font-size:8px}.robot-wrap{max-width:280px}.stage-motto{font-size:13px}.robot-speech{font-size:12px;padding:12px}}
+@media(max-width:900px){.pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:800px){.robot-stage{height:auto;min-height:220px;padding:0;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:10px;max-width:470px;margin:0 auto}.robot-stage .stage-motto{display:none}.robot-stage .robot-speech{grid-column:2;grid-row:1;margin:0;z-index:auto;max-width:190px;text-align:left}.robot-stage .robot-wrap{grid-column:1;grid-row:1;width:185px;height:222px;margin:0;max-width:100%}.robot-interaction-hint{display:none}.account-panel{padding:28px 25px}.account-panel h1{font-size:26px}.account-panel .robot-wrap{width:160px;height:192px;max-width:100%;margin:auto}}
+@media(max-width:600px){.pricing-grid{grid-template-columns:1fr}.modal-header{padding:22px 19px 15px}.modal-header h2{font-size:21px}.modal-body{padding:6px 19px 23px}.modal-header .close{margin-right:-5px}.price-card{padding:23px}.plan-top{min-height:0}.plan-description{min-height:0}.price-card li{font-size:12px}.price-card button{font-size:12px}.price{font-size:37px}.robot-stage{grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%;max-width:380px;min-height:200px}.robot-stage .robot-wrap{width:170px;height:auto}.robot-stage .robot-speech{font-size:11px;padding:12px;text-align:left;min-width:0}.robot-speech>span{font-size:10px}.account-panel{padding:26px 18px;border-radius:22px}.account-panel h1{font-size:24px}.checkout-intent{padding:15px}.account-panel .space-actions{flex-direction:column}.account-panel .space-actions>button{width:100%}}

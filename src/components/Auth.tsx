@@ -1,15 +1,38 @@
-import React, {useState} from 'react';
-import {Sparkles,Eye,EyeOff,ArrowRight} from 'lucide-react';
-import {roles, type Role, type Plan} from '../data';
-import {authService,googleConfigured} from '../services/auth';
-import {GoogleButton} from './GoogleButton';
-export function Auth({role,plan,onRole,onEnter,onGoogle,onLegal}:{role:Role|null;plan:Plan|null;onRole:(r:Role)=>void;onEnter:()=>void;onGoogle:(user:{name:string})=>void;onLegal:(s:string)=>void}){
- const [tab,setTab]=useState<'login'|'signup'|'reset'>('login');const [visible,setVisible]=useState(false);const [error,setError]=useState('');const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);const [googleBusy,setGoogleBusy]=useState(false);const [googleConsent,setGoogleConsent]=useState(false);const [googleError,setGoogleError]=useState('');
- async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setError('');setMessage('');const data=new FormData(e.currentTarget);if(tab==='signup'&&data.get('password')!==data.get('confirm')){setError('Les mots de passe ne correspondent pas.');return}setBusy(true);try{const result=await authService.submitDemoForm();setMessage(tab==='reset'?'Démonstration : aucun e-mail de réinitialisation n’a été envoyé.':result.message)}catch{setError('Une erreur est survenue. Veuillez réessayer.')}finally{setBusy(false)}}
- async function google(){setGoogleError('');setGoogleBusy(true);try{onGoogle(await authService.signInGoogle())}catch(e){setGoogleError((e as Error).message)}finally{setGoogleBusy(false)}}
- function changeTab(t:typeof tab){setTab(t);setError('');setMessage('')}
- return <><p className="modal-subtitle">Un nouvel espace pour vos idées.</p><div className="demo-notice"><Sparkles size={16}/> Version de démonstration · Sans compte requis</div><label className="field">Votre profil<select value={role||''} onChange={e=>onRole(e.target.value as Role)}><option value="" disabled>Choisissez votre profil</option>{roles.map(r=><option key={r.name}>{r.name}</option>)}</select></label>{plan&&<p className="selected-plan">Offre {plan} sélectionnée · Paiement bientôt disponible</p>}
- <div className="tabs" role="tablist" aria-label="Authentification"><button role="tab" aria-selected={tab!=='signup'} onClick={()=>changeTab('login')}>Se connecter</button><button role="tab" aria-selected={tab==='signup'} onClick={()=>changeTab('signup')}>Créer un compte</button></div>
- {googleConfigured&&tab!=='reset'&&<><GoogleButton busy={googleBusy} disabled={!role||busy||(googleConfigured&&!googleConsent)} onClick={google}/>{googleConfigured?<label className="consent consent-google"><input type="checkbox" checked={googleConsent} onChange={e=>setGoogleConsent(e.target.checked)}/><span>J’accepte les <button type="button" onClick={()=>onLegal('Conditions d’utilisation')}>conditions d’utilisation</button> et la <button type="button" onClick={()=>onLegal('Politique de confidentialité')}>politique de confidentialité</button> pour continuer avec Google.</span></label>:<p className="google-note">Google sera disponible après activation. La démonstration reste accessible.</p>}{!role&&<p className="google-note">Choisissez votre profil pour continuer.</p>}{googleError&&<p className="error" role="alert">{googleError}</p>}<div className="separator">ou avec votre adresse e-mail · démonstration</div></>}
- <form key={tab} onSubmit={submit} className="auth-form">{tab==='reset'&&<p>Indiquez votre e-mail pour tester le formulaire de récupération.</p>}{tab==='signup'&&<label className="field">Prénom<input name="firstname" autoComplete="given-name" required maxLength={80} placeholder="Votre prénom"/></label>}<label className="field">Adresse e-mail<input name="email" type="email" autoComplete="email" required placeholder="vous@exemple.fr"/></label>{tab!=='reset'&&<><label className="field">Mot de passe<div className="password-field"><input name="password" type={visible?'text':'password'} autoComplete={tab==='login'?'current-password':'new-password'} minLength={8} required placeholder="8 caractères minimum"/><button type="button" aria-label={visible?'Masquer le mot de passe':'Afficher le mot de passe'} onClick={()=>setVisible(!visible)}>{visible?<EyeOff size={18}/>:<Eye size={18}/>}</button></div></label>{tab==='signup'?<><label className="field">Confirmer le mot de passe<input name="confirm" type={visible?'text':'password'} autoComplete="new-password" required minLength={8} placeholder="Saisissez à nouveau votre mot de passe"/></label><label className="consent"><input type="checkbox" required/><span>J’accepte les <button type="button" onClick={()=>onLegal('Conditions d’utilisation')}>conditions d’utilisation</button> et la <button type="button" onClick={()=>onLegal('Politique de confidentialité')}>politique de confidentialité</button>.</span></label></>:<button type="button" className="text-button forgot" onClick={()=>changeTab('reset')}>Mot de passe oublié ?</button>}</>}{error&&<p className="error" role="alert">{error}</p>}{message&&<p className="form-message" role="status">{message}</p>}<button className="primary" disabled={busy||googleBusy}>{busy?'Vérification…':tab==='signup'?'Créer mon compte':tab==='reset'?'Tester la récupération':'Se connecter'}</button></form><div className="separator">ou découvrez FarabAi</div><button className="secondary full" disabled={!role||busy||googleBusy} onClick={onEnter}>Continuer en démonstration <ArrowRight size={16}/></button><p className="privacy-note">Aucun mot de passe n’est enregistré ni envoyé.</p></>
+import {useRef,useState,type FormEvent} from 'react';
+import {LockKeyhole} from 'lucide-react';
+import {roles,type Role,type Plan} from '../data';
+import {authService,authConfigured,authError,CONFIG_MESSAGE,type Account} from '../services/auth';
+import {PasswordField} from './PasswordField';
+export type AuthTab='login'|'signup'|'reset';
+export function Auth({role,plan,onRole,onSuccess,onLegal,initialTab='login'}:{role:Role|null;plan:Plan|null;onRole:(r:Role)=>void;onSuccess:(account:Account,notice:string)=>void;onLegal:(s:string)=>void;initialTab?:AuthTab}){
+ const [tab,setTab]=useState<AuthTab>(initialTab);const [error,setError]=useState('');const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);const lock=useRef(false);
+ async function submit(e:FormEvent<HTMLFormElement>){
+  e.preventDefault();if(lock.current)return;setError('');setMessage('');const form=e.currentTarget;const data=new FormData(form);
+  if(!authConfigured){setError(CONFIG_MESSAGE);return}
+  const firstName=String(data.get('firstname')||'').trim();const password=String(data.get('password')||'');
+  if(tab==='signup'&&(!firstName||!role)){setError('Renseignez votre prénom et choisissez un profil.');return}
+  if(tab==='signup'&&password!==data.get('confirm')){setError('Les mots de passe ne correspondent pas.');return}
+  lock.current=true;setBusy(true);
+  try{
+   const email=String(data.get('email')||'').trim();
+   if(tab==='reset'){await authService.requestReset(email);setMessage('Si un compte correspond à cette adresse, un e-mail de réinitialisation vous sera envoyé. Consultez aussi vos courriers indésirables.');form.reset()}
+   else{const result=tab==='signup'?await authService.signUp(firstName,email,password,role!):await authService.signIn(email,password,role);form.reset();onSuccess(result.account,result.notice)}
+  }catch(error){setError(authError(error))}finally{lock.current=false;setBusy(false)}
+ }
+ function changeTab(value:AuthTab){if(busy)return;setTab(value);setError('');setMessage('')}
+ return <><p className="modal-subtitle">Votre compte, votre espace d’apprentissage.</p>{!authConfigured&&<p className="service-notice" role="status"><LockKeyhole size={18}/><span>{CONFIG_MESSAGE} Aucun compte ne sera simulé.</span></p>}
+ <label className="field">Votre profil<select value={role||''} disabled={busy} onChange={e=>onRole(e.target.value as Role)}><option value="">{tab==='signup'?'Choisissez votre profil':'Profil du compte ou votre choix'}</option>{roles.map(r=><option key={r.name}>{r.name}</option>)}</select></label>
+ {plan&&<p className="selected-plan">Offre {plan} sélectionnée. Après connexion, vous pourrez continuer vers Stripe.</p>}
+ <div className="tabs" role="tablist" aria-label="Authentification"><button role="tab" aria-selected={tab!=='signup'} disabled={busy} onClick={()=>changeTab('login')}>Se connecter</button><button role="tab" aria-selected={tab==='signup'} disabled={busy} onClick={()=>changeTab('signup')}>Créer un compte</button></div>
+ <form key={tab} onSubmit={submit} className="auth-form" aria-busy={busy}>
+ <fieldset disabled={busy}>
+ {tab==='reset'&&<p className="form-intro">Recevez un lien pour choisir un nouveau mot de passe.</p>}
+ {tab==='signup'&&<label className="field">Prénom<input name="firstname" autoComplete="given-name" required maxLength={80} placeholder="Votre prénom"/></label>}
+ <label className="field">Adresse e-mail<input name="email" type="email" autoComplete="email" required placeholder="vous@exemple.fr"/></label>
+ {tab!=='reset'&&<><PasswordField autoComplete={tab==='login'?'current-password':'new-password'}/>{tab==='signup'?<><PasswordField label="Confirmer le mot de passe" name="confirm" autoComplete="new-password"/><label className="consent"><input type="checkbox" required/><span>J’accepte les <button type="button" onClick={()=>onLegal('Conditions d’utilisation')}>conditions d’utilisation</button> et la <button type="button" onClick={()=>onLegal('Politique de confidentialité')}>politique de confidentialité</button>.</span></label></>:<button type="button" className="text-button forgot" onClick={()=>changeTab('reset')}>Mot de passe oublié ?</button>}</>}
+ </fieldset>
+ {error&&<p className="error" role="alert">{error}</p>}{message&&<p className="form-message" role="status">{message}</p>}
+ <button className="primary" disabled={busy||!authConfigured}>{busy?'Veuillez patienter…':tab==='signup'?'Créer mon compte':tab==='reset'?'Envoyer le lien de réinitialisation':'Se connecter'}</button>
+ {tab==='reset'&&<button type="button" className="text-button back-to-login" disabled={busy} onClick={()=>changeTab('login')}>Retour à la connexion</button>}
+ </form><p className="privacy-note">Vos identifiants et votre session sont gérés par Firebase. Aucun paiement n’est effectué ici.</p></>
 }

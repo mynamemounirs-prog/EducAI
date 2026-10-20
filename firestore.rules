@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function validProfile() {
+      return request.resource.data.keys().hasOnly(['firstName', 'role', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['firstName', 'role', 'createdAt', 'updatedAt'])
+        && request.resource.data.firstName is string
+        && request.resource.data.firstName.size() > 0
+        && request.resource.data.firstName.size() <= 80
+        && request.resource.data.role in ['Enseignant', 'Étudiant', 'Pédagogue']
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt == request.time;
+    }
+    match /profiles/{uid} {
+      allow get: if owner(uid);
+      allow list: if false;
+      allow create: if owner(uid) && validProfile() && request.resource.data.createdAt == request.time;
+      allow update: if owner(uid) && validProfile()
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if owner(uid);
+    }
+    // No client field grants a subscription. Future entitlements must be written by a trusted server.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

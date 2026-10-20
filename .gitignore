@@ -3,3 +3,9 @@ dist/
 test-results/
 playwright-report/
 .env*
+
+!.env.example
+
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*

@@ -10,5 +10,5 @@ export function Modal({title,children,onClose,wide=false}:{title:string;children
  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}
  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}
  }
- return <dialog onKeyDown={trapFocus} ref={ref} className={wide?'modal wide':'modal'} onCancel={e=>{e.preventDefault();onClose()}} onClick={e=>{if(e.target===e.currentTarget)onClose()}} aria-labelledby="modal-title"><div className="modal-inner"><button className="icon-button close" aria-label="Fermer" onClick={onClose}><X size={20}/></button><h2 id="modal-title">{title}</h2>{children}</div></dialog>
+ return <dialog onKeyDown={trapFocus} ref={ref} className={wide?'modal wide':'modal'} onCancel={e=>{e.preventDefault();onClose()}} onClick={e=>{if(e.target===e.currentTarget)onClose()}} aria-labelledby="modal-title"><div className="modal-shell"><div className="modal-header"><h2 id="modal-title">{title}</h2><button className="icon-button close" aria-label="Fermer" onClick={onClose}><X size={20}/></button></div><div className="modal-body">{children}</div></div></dialog>
 }

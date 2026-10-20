@@ -5,3 +5,4 @@ import './style.css';
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
 
 import './cinematic.css';
+import './improvements.css';
