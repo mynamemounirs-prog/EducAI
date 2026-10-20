@@ -1,3 +1,4 @@
+import {readPedagogue,mergePedagogue,type PedagogueWorkspace} from '../pedagogue/model';
 import {readStudent,mergeStudent,type StudentWorkspace} from '../student/model';
 import {readWorkspace,mergeWorkspaces,type Workspace} from '../teacher/model';
 import {withDeadline} from './deadline';
@@ -108,3 +109,6 @@ export async function saveStudentWorkspace(uid:string,value:StudentWorkspace){
  requireOwner(uid);const valid=readStudent(value);const ref=doc(db,'studentWorkspaces',uid);
  return withDeadline(runTransaction(db,async tx=>{requireOwner(uid);const snap=await tx.get(ref);const next=snap.exists()?mergeStudent(valid,readStudent(snap.data())):valid;tx.set(ref,{...next,serverUpdatedAt:serverTimestamp()});return next;}),'La synchronisation n’a pas été confirmée. Tes travaux restent sur cet appareil.',12000);
 }
+
+export async function loadPedagogueWorkspace(uid:string){requireOwner(uid);const snap=await withDeadline(getDoc(doc(db,'pedagogueWorkspaces',uid)),'Le service de conception ne répond pas.');requireOwner(uid);return snap.exists()?readPedagogue(snap.data()):null;}
+export async function savePedagogueWorkspace(uid:string,value:PedagogueWorkspace){requireOwner(uid);const valid=readPedagogue(value),ref=doc(db,'pedagogueWorkspaces',uid);return withDeadline(runTransaction(db,async tx=>{requireOwner(uid);const snap=await tx.get(ref);const next=snap.exists()?mergePedagogue(valid,readPedagogue(snap.data())):valid;tx.set(ref,{...next,serverUpdatedAt:serverTimestamp()});return next;}),'La synchronisation n’a pas été confirmée. Vos travaux restent sur cet appareil.',12000);}

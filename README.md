@@ -25,6 +25,8 @@ L’espace enseignant est accessible gratuitement via **Tester l’espace enseig
 
 L’espace étudiant se teste via **Tester l’espace étudiant** : apprentissage par étapes, révisions, examens blancs, résolution guidée, explications d’exemple, import local PDF/TXT, fiches PDF et cartes mentales SVG. La progression est calculée sur les actions enregistrées et démarre à zéro. Voir le [guide étudiant](docs/ETUDIANT.md).
 
+L’espace pédagogue se teste via **Tester l’espace pédagogue** : atelier Idée → Structure → Prototype → Export, quatre modèles interactifs, documents de conception modifiables et exports Markdown/PDF/JSON avec prompt Codex. Voir le [guide pédagogue](docs/PEDAGOGUE.md).
+
 Google reste de côté. L’IA, la recherche Internet et le rendu vidéo restent à connecter. L’activation automatique des abonnements doit être raccordée via des webhooks vérifiés côté serveur. Les documents juridiques restent provisoires.
 
 ## Configuration et déploiement

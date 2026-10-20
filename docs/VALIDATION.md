@@ -26,8 +26,8 @@ Cela valide le parcours SDK et les règles locales, mais pas la configuration de
 ## Résultats de cette révision
 
 - `npm run build` : TypeScript et compilation réussis. Avertissement Vite non bloquant sur la taille du module Firebase, chargé à la demande.
-- `npm test` : 26 tests réussis, y compris les thèmes et les formats 1440, 768, 390 et 320 pixels, les fenêtres courtes de 540 pixels de haut, les messages de validation visibles et le respect de la réduction des animations.
-- Suite Firebase locale : 8 tests réussis avec les vrais SDK et émulateurs Auth/Firestore, couvrant inscription, confirmation d’e-mail, connexion, déconnexion, session après actualisation, réinitialisation (et rejet du lien déjà consommé), protection des pages et profils, refus d’écriture des droits payants, offre conservée, quatre URL Stripe exactes et prévention des doubles inscriptions et création d’un compte avec demande de confirmation malgré une panne Firestore.
+- `npm test` : 40 tests réussis, y compris les thèmes et les formats 1440, 768, 390 et 320 pixels, les fenêtres courtes de 540 pixels de haut, les messages de validation visibles et le respect de la réduction des animations.
+- Suite Firebase locale : 9 tests réussis avec les vrais SDK et émulateurs Auth/Firestore, couvrant inscription, confirmation d’e-mail, connexion, déconnexion, session après actualisation, réinitialisation (et rejet du lien déjà consommé), protection des pages et profils, refus d’écriture des droits payants, offre conservée, quatre URL Stripe exactes et prévention des doubles inscriptions et création d’un compte avec demande de confirmation malgré une panne Firestore.
 - Les trois variables de production Firebase sont absentes de l’environnement. Le service de production, la livraison des vrais e-mails et les règles de la vraie base restent à configurer et à vérifier. Aucun paiement réel ni webhook de production n’a été exécuté.
 
 ## Espace enseignant
@@ -51,3 +51,17 @@ Rendu contrôlé dans les deux thèmes aux largeurs 1440, 768, 390 et 320 pixels
 Le huitième test Firebase crée un compte Étudiant réel dans l’émulateur, enregistre un cours et une étape terminée, supprime son cache puis retrouve cours et progression depuis Firestore. La démo reste isolée même connecté ; sa réinitialisation ne touche pas les travaux du compte. Lecture/écriture d’un autre utilisateur, liste globale et champ de droits payants sont refusés par les nouvelles règles locales. Ces règles ne sont pas automatiquement publiées dans Firebase par GitHub Pages.
 
 PDF.js et son worker sont chargés à la demande depuis les fichiers du site. Aucun PDF ni TXT de démonstration n’est envoyé à un service externe. L’extraction OCR, l’IA et les services de production n’ont pas été testés puisqu’ils ne sont pas connectés.
+
+## Espace Pédagogue
+
+Quatorze tests d’interface couvrent la démo sans compte ni paiement, ses trois projets d’exemple, les quatre types de création et la validation des champs, la structure éditable (ajout, modification, suppression, ordre, priorités et permissions de conception), la sauvegarde et la reprise de l’étape après actualisation. La duplication est modifiée puis comparée à l’original ; renommage et suppression sont confirmés.
+
+Les quatre prototypes sont testés : recherche/ajout/modification d’un élève fictif et présence ; catalogue/leçons/progression ; devoir, filtre d’annonces et événement ; score exact du quiz, explications et nouvelle partie. Personnalisation, vue mobile et réinitialisation confirmée sont vérifiées ; un texte contenant une balise HTML reste du texte et n’est pas exécuté. Les suggestions des sites web incluent les pages publiques et un rôle Visiteur ; changer de modèle demande confirmation.
+
+Les exports sont inspectés : vrai Markdown, PDF avec signature et texte extrait par `pdftotext`, JSON analysable reprenant les choix, presse-papiers contenant le prompt complet. L’absence de presse-papiers fournit une alternative manuelle sans fausse confirmation. Les documents enregistrés sont modifiés puis retrouvés après actualisation. Assistants, recherche filtrée, préférences, reset, communauté honnête et dépassement de quota local sont contrôlés.
+
+Les deux thèmes sont vérifiés à 1440, 768, 390 et 320 pixels ; menu mobile au clavier, absence de débordement et protection des modifications non enregistrées. Les captures de l’accueil ont été inspectées sur ordinateur sombre et mobile clair. Les fenêtres imbriquées ont désormais des identifiants de titre uniques et le piège de focus inclut les zones de texte.
+
+Le neuvième test Firebase crée un compte Pédagogue dans les émulateurs, enregistre un projet et un quiz de prototype, supprime le cache puis retrouve le projet à l’étape Prototype et son score depuis Firestore. La démo et son reset restent isolés des travaux du compte. Accès à un autre propriétaire, liste globale et fabrication d’un abonnement sont refusés. Les règles de production doivent toujours être publiées séparément dans Firebase.
+
+Les suites ont utilisé des répertoires de résultats distincts pour les essais Firebase simultanés (`--output=test-results/firebase`). Aucun prototype ni service métier n’a été déployé. L’utilisateur a explicitement autorisé la mise à jour de FarabAi sur GitHub tout en réservant les prototypes à l’atelier.

@@ -1,3 +1,4 @@
+import type {PedagogueWorkspace} from '../pedagogue/model';
 import type {Role} from '../data';
 import type {StudentWorkspace} from '../student/model';
 import type {Workspace} from '../teacher/model';
@@ -42,6 +43,8 @@ export const authService={
   void backend().then(client=>{if(!disposed)unsubscribe=client.observe(onChange,onError)}).catch(error=>{if(!disposed)onError(authError(error))});
   return()=>{disposed=true;unsubscribe?.()};
  },
+ async loadPedagogueWorkspace(uid:string){return (await backend()).loadPedagogueWorkspace(uid)},
+ async savePedagogueWorkspace(uid:string,value:PedagogueWorkspace){return (await backend()).savePedagogueWorkspace(uid,value)},
  async loadStudentWorkspace(uid:string){return (await backend()).loadStudentWorkspace(uid)},
  async saveStudentWorkspace(uid:string,value:StudentWorkspace){return (await backend()).saveStudentWorkspace(uid,value)},
  async loadTeacherWorkspace(uid:string){return (await backend()).loadTeacherWorkspace(uid)},
