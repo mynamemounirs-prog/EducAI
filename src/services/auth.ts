@@ -1,4 +1,5 @@
 import type {Role} from '../data';
+import type {StudentWorkspace} from '../student/model';
 import type {Workspace} from '../teacher/model';
 
 export type Account={uid:string;email:string;firstName:string;emailVerified:boolean;role:Role|null;profileError?:string};
@@ -41,6 +42,8 @@ export const authService={
   void backend().then(client=>{if(!disposed)unsubscribe=client.observe(onChange,onError)}).catch(error=>{if(!disposed)onError(authError(error))});
   return()=>{disposed=true;unsubscribe?.()};
  },
+ async loadStudentWorkspace(uid:string){return (await backend()).loadStudentWorkspace(uid)},
+ async saveStudentWorkspace(uid:string,value:StudentWorkspace){return (await backend()).saveStudentWorkspace(uid,value)},
  async loadTeacherWorkspace(uid:string){return (await backend()).loadTeacherWorkspace(uid)},
  async saveTeacherWorkspace(uid:string,value:Workspace){return (await backend()).saveTeacherWorkspace(uid,value)},
  async signUp(firstName:string,email:string,password:string,role:Role){return (await backend()).signUp(firstName,email,password,role)},

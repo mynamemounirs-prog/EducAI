@@ -26,8 +26,8 @@ Cela valide le parcours SDK et les règles locales, mais pas la configuration de
 ## Résultats de cette révision
 
 - `npm run build` : TypeScript et compilation réussis. Avertissement Vite non bloquant sur la taille du module Firebase, chargé à la demande.
-- `npm test` : 16 tests réussis, y compris les thèmes et les formats 1440, 768, 390 et 320 pixels, les fenêtres courtes de 540 pixels de haut, les messages de validation visibles et le respect de la réduction des animations.
-- Suite Firebase locale : 7 tests réussis avec les vrais SDK et émulateurs Auth/Firestore, couvrant inscription, confirmation d’e-mail, connexion, déconnexion, session après actualisation, réinitialisation (et rejet du lien déjà consommé), protection des pages et profils, refus d’écriture des droits payants, offre conservée, quatre URL Stripe exactes et prévention des doubles inscriptions et création d’un compte avec demande de confirmation malgré une panne Firestore.
+- `npm test` : 26 tests réussis, y compris les thèmes et les formats 1440, 768, 390 et 320 pixels, les fenêtres courtes de 540 pixels de haut, les messages de validation visibles et le respect de la réduction des animations.
+- Suite Firebase locale : 8 tests réussis avec les vrais SDK et émulateurs Auth/Firestore, couvrant inscription, confirmation d’e-mail, connexion, déconnexion, session après actualisation, réinitialisation (et rejet du lien déjà consommé), protection des pages et profils, refus d’écriture des droits payants, offre conservée, quatre URL Stripe exactes et prévention des doubles inscriptions et création d’un compte avec demande de confirmation malgré une panne Firestore.
 - Les trois variables de production Firebase sont absentes de l’environnement. Le service de production, la livraison des vrais e-mails et les règles de la vraie base restent à configurer et à vérifier. Aucun paiement réel ni webhook de production n’a été exécuté.
 
 ## Espace enseignant
@@ -39,3 +39,15 @@ Les téléchargements sont contrôlés : signature PDF, contenu extrait avec `pd
 Le septième test Firebase crée un enseignant dans les vrais émulateurs, sauvegarde un projet et un cours, supprime uniquement son cache local, puis retrouve les données depuis Firestore. Il vérifie l’isolation de la démo même connecté, ainsi que le refus de lecture/écriture du workspace d’un autre utilisateur et le refus de fabrication de droits payants. Les nouvelles règles `teacherWorkspaces` ont été validées localement ; elles doivent être publiées séparément sur le projet Firebase réel.
 
 Les tests d’export utilisent `pdftotext` (Poppler) et Python pour inspecter les fichiers ; ces outils sont présents dans cet environnement. Le rendu des fichiers dans Microsoft PowerPoint n’a pas été contrôlé manuellement. Les sauvegardes sont des documents Firestore soumis à sa limite de taille ; l’interface signale les erreurs serveur et conserve la copie locale.
+
+## Espace étudiant
+
+Dix tests d’interface ajoutés : démonstration sans inscription/paiement, isolation de la démo Enseignant, statistiques initiales à zéro, étapes et reprise après actualisation, retournement et autoévaluation des cartes, score des quiz, examen avec réponses persistantes et remise confirmée, corrigé masqué avant remise, chronomètre désactivable et expiration sans divulgation du corrigé. Les modes Résoudre et Explication utilisent des exemples explicitement identifiés ; les demandes libres ne reçoivent pas une fausse réponse IA.
+
+Import testé avec un vrai PDF texte créé par jsPDF et un TXT, refus d’un fichier HTML et d’un fichier dépassant 5 Mo, détection d’un PDF sans texte nécessitant un OCR. Le texte importé contenant une balise script est affiché comme du texte et ne s’exécute pas. PDF de fiche contrôlé avec `pdftotext` ; carte SVG contrôlée comme fichier vectoriel, avec zoom et alternative textuelle. Création, recherche, modification et suppression confirmée de cours personnels, préférences et remise à zéro de la démo, message explicite sur dépassement du quota local.
+
+Rendu contrôlé dans les deux thèmes aux largeurs 1440, 768, 390 et 320 pixels, y compris menu mobile au clavier et éditeurs. Captures inspectées pour l’accueil étudiant sur ordinateur sombre et mobile clair. L’avatar réutilise les animations et la réduction des mouvements déjà testées.
+
+Le huitième test Firebase crée un compte Étudiant réel dans l’émulateur, enregistre un cours et une étape terminée, supprime son cache puis retrouve cours et progression depuis Firestore. La démo reste isolée même connecté ; sa réinitialisation ne touche pas les travaux du compte. Lecture/écriture d’un autre utilisateur, liste globale et champ de droits payants sont refusés par les nouvelles règles locales. Ces règles ne sont pas automatiquement publiées dans Firebase par GitHub Pages.
+
+PDF.js et son worker sont chargés à la demande depuis les fichiers du site. Aucun PDF ni TXT de démonstration n’est envoyé à un service externe. L’extraction OCR, l’IA et les services de production n’ont pas été testés puisqu’ils ne sont pas connectés.

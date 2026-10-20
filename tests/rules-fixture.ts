@@ -8,3 +8,6 @@ export async function forgeAccess(uid:string){return setDoc(doc(getFirestore(get
 export async function writeOtherProfile(uid:string){return setDoc(doc(getFirestore(getApp()),'profiles',uid),{firstName:'Autre utilisateur',role:'Étudiant',createdAt:serverTimestamp(),updatedAt:serverTimestamp()})}
 export async function readWorkspace(uid:string){return (await getDoc(doc(getFirestore(getApp()),'teacherWorkspaces',uid))).data()}
 export async function writeWorkspace(uid:string,extra={}){return setDoc(doc(getFirestore(getApp()),'teacherWorkspaces',uid),{schemaVersion:1,projects:[],resources:[],settings:{},deletedProjects:[],deletedResources:[],updatedAt:Date.now(),serverUpdatedAt:serverTimestamp(),...extra})}
+export async function readStudentWorkspace(uid:string){return (await getDoc(doc(getFirestore(getApp()),'studentWorkspaces',uid))).data()}
+export async function writeStudentWorkspace(uid:string,extra={}){return setDoc(doc(getFirestore(getApp()),'studentWorkspaces',uid),{schemaVersion:1,courses:[],notes:[],attempts:[],exercises:[],settings:{displayName:'Test',level:'Lycée',subject:'Sciences'},deletedCourses:[],deletedNotes:[],updatedAt:Date.now(),serverUpdatedAt:serverTimestamp(),...extra})}
+export async function listStudentWorkspaces(){return getDocs(collection(getFirestore(getApp()),'studentWorkspaces'))}

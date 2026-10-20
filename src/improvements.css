@@ -49,3 +49,5 @@ html[data-theme=light] .account-panel{background:#fffaf6eb}
 .submission-status{font-size:12px;line-height:1.7;color:var(--purple);margin:12px 0}.auth-form [role=alert],.auth-form [role=status]{scroll-margin-block:18px}.auth-form [role=alert]:focus{outline:2px solid var(--purple);outline-offset:5px;border-radius:4px}
 
 .build-version{font-size:9px;margin-left:5px;white-space:nowrap}@media(max-width:600px){footer{flex-wrap:wrap}.build-version{display:block;margin:5px 0 0}}
+
+.student-demo-entries{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}.student-demo-entries>.teacher-demo-cta{font-size:11px;padding:10px 14px;margin:0}@media(max-width:520px){.student-demo-entries{gap:8px}.student-demo-entries>.teacher-demo-cta{font-size:10px;padding:8px 10px}}
