@@ -21,7 +21,9 @@ Le serveur utilise le port 5173. Sans configuration Firebase, l’accueil et les
 - Quatre offres et liens Stripe centralisés ; offre conservée pendant l’authentification. Aucun paiement ni retour d’URL n’accorde automatiquement des droits.
 - Fenêtres à contenu défilant avec en-tête et fermeture accessibles, navigation clavier et réduction des animations respectée.
 
-Google reste de côté. Les outils pédagogiques ne sont pas encore développés. L’activation automatique des abonnements doit être raccordée via des webhooks vérifiés côté serveur. Les documents juridiques restent provisoires.
+L’espace enseignant est accessible gratuitement via **Tester l’espace enseignant** sur l’accueil, sans compte ni paiement. Il comprend projets, ressources, quatre ateliers éditables, exports PDF/PPTX, quiz jouable et storyboard. La démo conserve ses données dans ce navigateur, séparément des comptes. Voir le [guide enseignant](docs/ENSEIGNANT.md).
+
+Google reste de côté. L’IA, la recherche Internet et le rendu vidéo restent à connecter. L’activation automatique des abonnements doit être raccordée via des webhooks vérifiés côté serveur. Les documents juridiques restent provisoires.
 
 ## Configuration et déploiement
 

@@ -1,7 +1,7 @@
 import {useEffect,useId,useRef,useState} from 'react';
 
 /** The robot stays vector-based: eyes, head, body and hand move independently. */
-export function Avatar({active=false,small=false}:{active?:boolean;small?:boolean}){
+export function Avatar({active=false,small=false,educational=false}:{active?:boolean;small?:boolean;educational?:boolean}){
  const id=useId().replace(/:/g,'');const ref=useRef<HTMLButtonElement>(null);const [greeting,setGreeting]=useState(false);
  useEffect(()=>{const timer=window.setTimeout(()=>setGreeting(false),2200);return()=>clearTimeout(timer)},[greeting]);
  useEffect(()=>{
@@ -43,6 +43,7 @@ export function Avatar({active=false,small=false}:{active?:boolean;small?:boolea
  <g className="robot-face"><g className="robot-eyes"><path d="M150 173c2-22 28-25 34-5M222 165c2-22 28-25 34-5" stroke="#bd7bff" strokeWidth="12" strokeLinecap="round" filter={`url(#${id}-glow)`}/><path d="M150 173c2-22 28-25 34-5M222 165c2-22 28-25 34-5" stroke="#ead0ff" strokeWidth="6" strokeLinecap="round"/></g><path d="M187 197q17 15 32-4" stroke="#cf9cff" strokeWidth="3" strokeLinecap="round"/><ellipse cx="144" cy="191" rx="10" ry="4" fill="#b278e8" opacity=".22"/><ellipse cx="260" cy="180" rx="10" ry="4" fill="#b278e8" opacity=".22"/></g>
  <path d="M131 237c37 11 99 4 136-17" stroke={`url(#${id}-gold)`} strokeWidth="3" strokeLinecap="round"/>
  <circle cx="195" cy="72" r="4" fill="#ffe6a7"/>
+ {educational&&<g className="robot-cap"><path d="m101 58 97-43 99 35-98 44z" fill="#121321" stroke={`url(#${id}-gold)`} strokeWidth="3"/><path d="m146 77 2 17q50 16 101-5l-1-17-49 22z" fill="#211c34" stroke={`url(#${id}-gold)`} strokeWidth="2"/><path d="M117 61v60l-6 17h13l-7-17" stroke="#e5bc69" strokeWidth="3" strokeLinecap="round"/></g>}
  </g></g>
  <g className="robot-sparks" fill="#eecf99"><path d="m328 104 3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/><path d="m69 270 2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></g>
  </svg><span className="robot-interaction-hint">Cliquez pour un petit coucou <span>✦</span></span></button>

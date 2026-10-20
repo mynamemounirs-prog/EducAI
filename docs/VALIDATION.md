@@ -26,6 +26,16 @@ Cela valide le parcours SDK et les règles locales, mais pas la configuration de
 ## Résultats de cette révision
 
 - `npm run build` : TypeScript et compilation réussis. Avertissement Vite non bloquant sur la taille du module Firebase, chargé à la demande.
-- `npm test` : 7 tests réussis, y compris les thèmes et les formats 1440, 768, 390 et 320 pixels, les fenêtres courtes de 540 pixels de haut, les messages de validation visibles et le respect de la réduction des animations.
-- Suite Firebase locale : 6 tests réussis avec les vrais SDK et émulateurs Auth/Firestore, couvrant inscription, confirmation d’e-mail, connexion, déconnexion, session après actualisation, réinitialisation (et rejet du lien déjà consommé), protection des pages et profils, refus d’écriture des droits payants, offre conservée, quatre URL Stripe exactes et prévention des doubles inscriptions et création d’un compte avec demande de confirmation malgré une panne Firestore.
+- `npm test` : 16 tests réussis, y compris les thèmes et les formats 1440, 768, 390 et 320 pixels, les fenêtres courtes de 540 pixels de haut, les messages de validation visibles et le respect de la réduction des animations.
+- Suite Firebase locale : 7 tests réussis avec les vrais SDK et émulateurs Auth/Firestore, couvrant inscription, confirmation d’e-mail, connexion, déconnexion, session après actualisation, réinitialisation (et rejet du lien déjà consommé), protection des pages et profils, refus d’écriture des droits payants, offre conservée, quatre URL Stripe exactes et prévention des doubles inscriptions et création d’un compte avec demande de confirmation malgré une panne Firestore.
 - Les trois variables de production Firebase sont absentes de l’environnement. Le service de production, la livraison des vrais e-mails et les règles de la vraie base restent à configurer et à vérifier. Aucun paiement réel ni webhook de production n’a été exécuté.
+
+## Espace enseignant
+
+Les nouveaux tests couvrent la démo sans compte ni paiement, ses exemples explicitement étiquetés, les quatre outils, la modification et la persistance après rechargement, les projets (création, renommage, suppression et réinitialisation confirmées), la recherche, les niveaux, les préférences et la protection des brouillons non enregistrés. Vérification des deux thèmes et de l’absence de débordement à 1440, 768, 390 et 320 pixels ; menu mobile ouvert/fermé au clavier. Captures contrôlées sur ordinateur sombre et mobile clair.
+
+Les téléchargements sont contrôlés : signature PDF, contenu extrait avec `pdftotext`, séparation sujet/corrigé de l’examen, archive OOXML PowerPoint et présence de plusieurs diapositives. Le jeu vérifie les trois réponses fermées et leur score ; les réponses ouvertes conservent un corrigé indicatif. Le storyboard et les sources manuelles sont édités puis enregistrés.
+
+Le septième test Firebase crée un enseignant dans les vrais émulateurs, sauvegarde un projet et un cours, supprime uniquement son cache local, puis retrouve les données depuis Firestore. Il vérifie l’isolation de la démo même connecté, ainsi que le refus de lecture/écriture du workspace d’un autre utilisateur et le refus de fabrication de droits payants. Les nouvelles règles `teacherWorkspaces` ont été validées localement ; elles doivent être publiées séparément sur le projet Firebase réel.
+
+Les tests d’export utilisent `pdftotext` (Poppler) et Python pour inspecter les fichiers ; ces outils sont présents dans cet environnement. Le rendu des fichiers dans Microsoft PowerPoint n’a pas été contrôlé manuellement. Les sauvegardes sont des documents Firestore soumis à sa limite de taille ; l’interface signale les erreurs serveur et conserve la copie locale.

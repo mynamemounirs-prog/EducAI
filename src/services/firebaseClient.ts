@@ -1,7 +1,8 @@
+import {readWorkspace,mergeWorkspaces,type Workspace} from '../teacher/model';
 import {withDeadline} from './deadline';
 import {getApp,getApps,initializeApp} from 'firebase/app';
 import {initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,sendEmailVerification,sendPasswordResetEmail,verifyPasswordResetCode,confirmPasswordReset,checkActionCode,applyActionCode,reload,connectAuthEmulator,type User} from 'firebase/auth';
-import {getFirestore,connectFirestoreEmulator,doc,getDoc,setDoc,serverTimestamp} from 'firebase/firestore';
+import {getFirestore,connectFirestoreEmulator,doc,getDoc,setDoc,serverTimestamp,runTransaction} from 'firebase/firestore';
 import {roles,type Role} from '../data';
 import {authError,requireEmailVerification,type Account} from './auth';
 
@@ -83,4 +84,18 @@ export async function completeAction(mode:string,code:string,password?:string){
  }
  if(mode==='verifyEmail'){await applyActionCode(auth,code);return refresh()}
  throw new Error('Ce type de lien n’est pas pris en charge.');
+}
+
+
+function requireOwner(uid:string){if(!auth.currentUser||auth.currentUser.uid!==uid)throw new Error('Votre session ne permet pas d’accéder à ces travaux.');}
+export async function loadTeacherWorkspace(uid:string){
+ requireOwner(uid);const snap=await withDeadline(getDoc(doc(db,'teacherWorkspaces',uid)),'Le service des travaux ne répond pas.');
+ requireOwner(uid);return snap.exists()?readWorkspace(snap.data()):null;
+}
+export async function saveTeacherWorkspace(uid:string,value:Workspace){
+ requireOwner(uid);const valid=readWorkspace(value);const ref=doc(db,'teacherWorkspaces',uid);
+ return withDeadline(runTransaction(db,async tx=>{
+  requireOwner(uid);const snapshot=await tx.get(ref);const next=snapshot.exists()?mergeWorkspaces(valid,readWorkspace(snapshot.data())):valid;
+  tx.set(ref,{...next,serverUpdatedAt:serverTimestamp()});return next;
+ }),'La synchronisation n’a pas été confirmée. Vos travaux restent sur cet appareil.',12000);
 }

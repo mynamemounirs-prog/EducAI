@@ -6,3 +6,5 @@ export async function listProfiles(){return getDocs(collection(getFirestore(getA
 export async function forgeAccess(uid:string){return setDoc(doc(getFirestore(getApp()),'profiles',uid),{subscription:'active'},{merge:true})}
 
 export async function writeOtherProfile(uid:string){return setDoc(doc(getFirestore(getApp()),'profiles',uid),{firstName:'Autre utilisateur',role:'Étudiant',createdAt:serverTimestamp(),updatedAt:serverTimestamp()})}
+export async function readWorkspace(uid:string){return (await getDoc(doc(getFirestore(getApp()),'teacherWorkspaces',uid))).data()}
+export async function writeWorkspace(uid:string,extra={}){return setDoc(doc(getFirestore(getApp()),'teacherWorkspaces',uid),{schemaVersion:1,projects:[],resources:[],settings:{},deletedProjects:[],deletedResources:[],updatedAt:Date.now(),serverUpdatedAt:serverTimestamp(),...extra})}
