@@ -7,7 +7,7 @@ test('profils et thème conservés, aucun accès privé simulé',async({page})=>
  for(const role of ['Enseignant','Étudiant','Pédagogue']){
   await page.locator('.role-card').filter({has:page.getByRole('heading',{name:role,exact:true})}).click();
   await expect(page.getByRole('combobox')).toHaveValue(role);await expect(page.getByRole('status')).toContainText('pas encore configuré');
-  await expect(page.getByRole('button',{name:'Se connecter',exact:true}).last()).toBeDisabled();
+  await expect(page.getByRole('button',{name:'Se connecter',exact:true}).last()).toBeEnabled();
   await expect(page.getByRole('button',{name:'Continuer en démonstration'})).toHaveCount(0);
   await page.keyboard.press('Escape');
  }
@@ -27,7 +27,7 @@ test('pages privées et liens e-mail inaccessibles sans service réel',async({pa
  await page.goto('/?payment=success&plan=Pro#espace');await expect(page.getByRole('heading',{name:'Connexion requise'})).toBeVisible();
  await expect(page.getByRole('heading',{name:/Bienvenue dans votre espace/})).toHaveCount(0);await expect(page.getByText('abonnement actif',{exact:false})).toHaveCount(0);
  await page.goto('/?mode=resetPassword&oobCode=not-a-valid-code');await expect(page.getByRole('heading',{name:'Choisir un nouveau mot de passe'})).toBeVisible();await expect(page.getByRole('status')).toContainText('pas encore configuré');
- await page.getByRole('button',{name:'Retour à l’accueil'}).click();await page.getByRole('button',{name:'Se connecter',exact:true}).click();await page.getByRole('button',{name:'Mot de passe oublié ?'}).click();await expect(page.getByRole('button',{name:'Envoyer le lien de réinitialisation'})).toBeDisabled();
+ await page.getByRole('button',{name:'Retour à l’accueil'}).click();await page.getByRole('button',{name:'Se connecter',exact:true}).click();await page.getByRole('button',{name:'Mot de passe oublié ?'}).click();await page.getByLabel('Adresse e-mail').fill('essai@example.test');await page.getByRole('button',{name:'Envoyer le lien de réinitialisation'}).click();await expect(page.getByRole('alert')).toContainText('pas encore configuré');
 });
 
 test('fenêtres longues mobiles : contenu défilant et fermeture toujours accessible',async({page})=>{
@@ -62,4 +62,16 @@ test('robot articulé animé, réaction au clic et réduction des animations',as
  expect(await page.locator('.robot-wave-arm').evaluate(el=>getComputedStyle(el).animationDuration)).toBe('0.9s');
  await page.emulateMedia({reducedMotion:'reduce'});
  for(const selector of ['.robot-float','.robot-head','.robot-eyes','.robot-wave-arm'])expect(await page.locator(selector).evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+});
+
+
+test('inscription mobile : chaque blocage est expliqué et le message reste visible',async({page})=>{
+ await page.setViewportSize({width:360,height:540});await page.goto('/');await page.locator('.role-card').first().click();await page.getByRole('tab',{name:'Créer un compte'}).click();
+ const submit=page.getByRole('button',{name:'Créer mon compte'});const alert=page.getByRole('alert');
+ await submit.click();await expect(alert).toContainText('prénom');await expect(alert).toBeFocused();await expect(alert).toBeInViewport();
+ await page.getByLabel('Prénom',{exact:true}).fill('Camille');await page.getByLabel('Adresse e-mail').fill('adresse-invalide');await submit.click();await expect(alert).toContainText('e-mail valide');
+ await page.getByLabel('Adresse e-mail').fill('camille@example.test');await page.getByLabel('Mot de passe',{exact:true}).fill('court');await submit.click();await expect(alert).toContainText('8 caractères');
+ await page.getByLabel('Mot de passe',{exact:true}).fill('Test-only-password-18!');await page.getByLabel('Confirmer le mot de passe').fill('different-password-19!');await submit.click();await expect(alert).toContainText('ne correspondent pas');
+ await page.getByLabel('Confirmer le mot de passe').fill('Test-only-password-18!');await submit.click();await expect(alert).toContainText('case d’acceptation');await expect(alert).toBeInViewport();
+ await page.getByRole('checkbox').check();await submit.click();await expect(alert).toContainText('redéployée');await expect(alert).toBeFocused();
 });

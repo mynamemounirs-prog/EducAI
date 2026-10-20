@@ -8,14 +8,14 @@ async function code(request:APIRequestContext,email:string,type:string){
 }
 async function register(page:Page,email:string,role='Enseignant'){
  await page.goto('/');await page.locator('.role-card').filter({has:page.getByRole('heading',{name:role,exact:true})}).click();await page.getByRole('tab',{name:'Créer un compte'}).click();
- await page.getByLabel('Prénom',{exact:true}).fill('Camille');await page.getByLabel('Adresse e-mail').fill(email);await page.getByLabel('Mot de passe',{exact:true}).fill(password);await page.getByLabel('Confirmer le mot de passe').fill(password);await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Créer mon compte'}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();
+ await page.getByLabel('Prénom',{exact:true}).fill('Camille');await page.getByLabel('Adresse e-mail').fill(email);await page.getByLabel('Mot de passe',{exact:true}).fill(password);await page.getByLabel('Confirmer le mot de passe').fill(password);await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Créer mon compte'}).click();await expect(page.getByRole('dialog')).toHaveCount(0,{timeout:20000});await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();
 }
 async function verify(page:Page,request:APIRequestContext,email:string){
  const action=await code(request,email,'VERIFY_EMAIL');await page.goto(`/?mode=verifyEmail&oobCode=${encodeURIComponent(action)}`);await page.getByRole('button',{name:'Valider mon adresse e-mail'}).click();await expect(page.getByText('Votre adresse e-mail est confirmée.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Continuer vers mon espace'}).click();await expect(page.getByRole('heading',{name:/Bienvenue dans votre espace/})).toBeVisible();
 }
 
 test('inscription réelle dans les émulateurs, validation e-mail, persistance et déconnexion',async({page,request})=>{
- const email=address();await register(page,email,'Pédagogue');await page.reload();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();
+ const email=address();await register(page,email,'Pédagogue');await page.reload();await expect(page.getByRole('dialog')).toHaveCount(0,{timeout:20000});await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();
  await verify(page,request,email);await expect(page.getByRole('heading',{name:'Bienvenue dans votre espace Pédagogue'})).toBeVisible();
  await page.reload();await expect(page.getByRole('heading',{name:'Bienvenue dans votre espace Pédagogue'})).toBeVisible();await expect(page.getByText('Bonjour Camille.',{exact:false})).toBeVisible();
  await page.getByRole('button',{name:'Se déconnecter',exact:true}).click();await expect(page.getByRole('heading',{name:'Qui êtes-vous ?'})).toBeVisible();await page.goto('/#espace');await expect(page.getByRole('heading',{name:'Votre espace personnel'})).toBeVisible();
@@ -34,7 +34,7 @@ test('mot de passe oublié et lien de réinitialisation consommé par Firebase',
 
 test('offre conservée pendant confirmation, liens Stripe exacts et absence de droits locaux',async({page,request})=>{
  const email=address();await page.goto('/');await page.getByRole('button',{name:'Tarifs',exact:true}).click();await page.locator('.price-card').filter({has:page.getByRole('heading',{name:'Pro',exact:true})}).getByRole('button').click();
- await page.getByRole('combobox').selectOption('Étudiant');await page.getByRole('tab',{name:'Créer un compte'}).click();await page.getByLabel('Prénom',{exact:true}).fill('Camille');await page.getByLabel('Adresse e-mail').fill(email);await page.getByLabel('Mot de passe',{exact:true}).fill(password);await page.getByLabel('Confirmer le mot de passe').fill(password);await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Créer mon compte'}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();
+ await page.getByRole('combobox').selectOption('Étudiant');await page.getByRole('tab',{name:'Créer un compte'}).click();await page.getByLabel('Prénom',{exact:true}).fill('Camille');await page.getByLabel('Adresse e-mail').fill(email);await page.getByLabel('Mot de passe',{exact:true}).fill(password);await page.getByLabel('Confirmer le mot de passe').fill(password);await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Créer mon compte'}).click();await expect(page.getByRole('dialog')).toHaveCount(0,{timeout:20000});await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();
  await page.reload();await verify(page,request,email);await expect(page.getByRole('link',{name:'Continuer vers le paiement'})).toHaveAttribute('href',checkout.Pro);await expect(page.getByText('abonnement actif',{exact:false})).toHaveCount(0);
  // Intercept Stripe navigation: no external checkout request and no payment is made.
  await page.route('https://buy.stripe.com/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<p>Destination Stripe interceptée pour le test local.</p>'}));
@@ -65,5 +65,16 @@ test('confirmation du mot de passe et prévention des doubles inscriptions',asyn
  await page.getByRole('button',{name:'Créer mon compte'}).click();await expect(page.getByRole('alert')).toContainText('ne correspondent pas');expect(creations).toBe(0);
  await page.getByLabel('Confirmer le mot de passe').fill(password);await page.getByRole('button',{name:'Afficher le mot de passe',exact:true}).click();await expect(page.getByLabel('Mot de passe',{exact:true})).toHaveAttribute('type','text');
  await page.locator('.auth-form').evaluate(form=>{form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))});
- await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();expect(creations).toBe(1);
+ await expect(page.getByRole('dialog')).toHaveCount(0,{timeout:20000});await expect(page.getByRole('heading',{name:'Confirmez votre adresse e-mail'})).toBeVisible();expect(creations).toBe(1);
+});
+
+
+test('un profil indisponible ne bloque ni le compte réel ni l’e-mail de confirmation',async({page,request})=>{
+ const email=address();
+ // Block only Firestore. The real Auth emulator still creates and verifies identities.
+ await page.route('**/google.firestore.v1.Firestore/**',route=>route.abort());
+ await register(page,email);
+ await expect(page.getByText('Votre compte a bien été créé, mais votre profil reste à finaliser.',{exact:false})).toBeVisible();
+ expect(await code(request,email,'VERIFY_EMAIL')).toBeTruthy();
+ await expect(page.getByRole('button',{name:'Se déconnecter',exact:true})).toBeEnabled();
 });

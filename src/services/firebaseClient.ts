@@ -1,3 +1,4 @@
+import {withDeadline} from './deadline';
 import {getApp,getApps,initializeApp} from 'firebase/app';
 import {initializeAuth,indexedDBLocalPersistence,browserLocalPersistence,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,sendEmailVerification,sendPasswordResetEmail,verifyPasswordResetCode,confirmPasswordReset,checkActionCode,applyActionCode,reload,connectAuthEmulator,type User} from 'firebase/auth';
 import {getFirestore,connectFirestoreEmulator,doc,getDoc,setDoc,serverTimestamp} from 'firebase/firestore';
@@ -21,7 +22,7 @@ async function session(user:User|null):Promise<Account|null>{
  if(!user)return null;
  const account:Account={uid:user.uid,email:user.email||'',emailVerified:user.emailVerified,firstName:user.displayName||'',role:null};
  try{
-  const snapshot=await getDoc(doc(db,'profiles',user.uid));
+  const snapshot=await withDeadline(getDoc(doc(db,'profiles',user.uid)),'La connexion au compte fonctionne, mais le service de profils ne répond pas. Réessayez le chargement de votre profil.');
   if(snapshot.exists()){
    const data=snapshot.data();
    if(typeof data.firstName==='string'&&roles.some(r=>r.name===data.role))return {...account,firstName:data.firstName,role:data.role as Role};
@@ -38,20 +39,26 @@ export function observe(onChange:(account:Account|null)=>void,onError:(message:s
 export async function saveProfile(firstName:string,role:Role){
  const user=auth.currentUser;if(!user)throw new Error('Connectez-vous pour enregistrer votre profil.');
  const name=firstName.trim();if(!name||name.length>80||!roles.some(r=>r.name===role))throw new Error('Vérifiez votre prénom et votre profil.');
- const ref=doc(db,'profiles',user.uid);const existing=await getDoc(ref);
- await setDoc(ref,{firstName:name,role,updatedAt:serverTimestamp(),...(!existing.exists()?{createdAt:serverTimestamp()}:{})},{merge:true});
+ const ref=doc(db,'profiles',user.uid);const existing=await withDeadline(getDoc(ref),'Le service de profils ne répond pas. Vérifiez la création de la base Firestore et sa connexion, puis réessayez.');
+ await withDeadline(setDoc(ref,{firstName:name,role,updatedAt:serverTimestamp(),...(!existing.exists()?{createdAt:serverTimestamp()}:{})},{merge:true}),'L’enregistrement du profil n’a pas été confirmé. Il peut encore aboutir : réessayez d’abord son chargement.');
  profileRevision++;
- if(user.displayName!==name)await updateProfile(user,{displayName:name});
- return (await session(user))!;
+ return {uid:user.uid,email:user.email||'',firstName:name,emailVerified:user.emailVerified,role};
 }
 export async function signUp(firstName:string,email:string,password:string,role:Role){
  const result=await createUserWithEmailAndPassword(auth,email.trim(),password);
- // If profile setup fails the real account still exists; the UI offers profile completion.
- await updateProfile(result.user,{displayName:firstName.trim()});
- const account=await saveProfile(firstName,role);
- let notice='';
- if(requireEmailVerification){try{await sendEmailVerification(result.user,{url:appUrl()})}catch(error){notice='Votre compte existe, mais l’e-mail de confirmation n’a pas pu être envoyé. '+authError(error)}}
- return {account,notice};
+ // Account creation is already effective. A Firestore outage must not prevent
+ // requesting the verification email or suggest recreating this same account.
+ const [profile,verification]=await Promise.allSettled([
+  saveProfile(firstName,role),
+  requireEmailVerification?withDeadline(sendEmailVerification(result.user,{url:appUrl()}),'L’envoi de l’e-mail n’a pas été confirmé. Il peut encore arriver ; vous pouvez aussi demander un nouvel envoi.'):Promise.resolve(),
+  withDeadline(updateProfile(result.user,{displayName:firstName.trim()}),'Mise à jour du prénom non confirmée.'),
+ ]);
+ const notices:string[]=[];
+ const user=result.user;
+ const account:Account=profile.status==='fulfilled'?profile.value:{uid:user.uid,email:user.email||'',firstName:firstName.trim(),emailVerified:user.emailVerified,role:null,profileError:authError(profile.reason)};
+ if(profile.status==='rejected')notices.push('Votre compte a bien été créé, mais votre profil reste à finaliser. '+authError(profile.reason));
+ if(verification.status==='rejected')notices.push('Votre compte existe. '+authError(verification.reason));
+ return {account,notice:notices.join(' ')};
 }
 export async function signIn(email:string,password:string,role:Role|null){
  const result=await signInWithEmailAndPassword(auth,email.trim(),password);

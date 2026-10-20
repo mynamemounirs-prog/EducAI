@@ -34,7 +34,11 @@ Sans base ou règles correctes, un compte Firebase peut exister mais son profil 
 
 ## 4. Liens de confirmation et réinitialisation
 
-FarabAi possède un gestionnaire d’e-mails sur sa page racine. Dans **Authentication → Templates**, personnalisez l’**Action URL** des modèles **Email address verification** et **Password reset** :
+**Le plus simple : conservez les URL d’action par défaut de Firebase** pour les modèles de confirmation et de réinitialisation, généralement sur `https://VOTRE-PROJET.firebaseapp.com/__/auth/action`. Utilisez la valeur fournie par votre propre projet, pas un domaine inventé. Firebase affiche sa page sécurisée, puis propose le retour vers FarabAi à l’URL envoyée par le code. Le bouton « J’ai confirmé mon adresse » recharge ensuite la session dans FarabAi. Aucun domaine personnalisé d’expéditeur ni vérification DNS n’est nécessaire. Ne cherchez pas à prouver la propriété de `github.io`.
+
+L’URL d’action et la personnalisation du domaine d’expéditeur sont deux réglages distincts. Si l’interface affiche « Custom domain verification in progress », revenez aux paramètres d’e-mail par défaut.
+
+**Option avancée, facultative :** FarabAi possède aussi un gestionnaire d’e-mails sur sa page racine. Dans **Authentication → Templates**, personnalisez l’**Action URL** des modèles **Email address verification** et **Password reset** :
 
 | Contexte | URL de l’application et URL d’action personnalisée |
 |---|---|
@@ -63,3 +67,10 @@ Le site documentaire Firebase était bloqué par le proxy de cet environnement. 
 - https://github.com/firebase/snippets-web/blob/master/auth-next/custom-email-handler.js
 - Référence du service : https://firebase.google.com/docs/auth/web/password-auth
 - Règles : https://firebase.google.com/docs/firestore/security/rules-conditions
+
+
+## Si le bouton d’inscription semble sans effet
+
+Le formulaire affiche maintenant un message visible et met le focus sur ce message pour chaque champ invalide, mot de passe trop court, confirmation différente ou case des conditions non cochée. Sans configuration Firebase intégrée au build, un clic valide affiche explicitement l’erreur et la nécessité de redéployer, au lieu de laisser un bouton désactivé sans retour.
+
+Si un compte est créé mais Firestore ne répond pas, le compte n’est pas recréé : l’écran de confirmation est affiché, l’e-mail est demandé indépendamment et un avertissement propose de finaliser le profil. Les lectures et écritures de profil ont une attente limitée ; une écriture non confirmée peut encore aboutir et ne doit pas être interprétée comme un échec définitif. Réessayez son chargement avant de recommencer.
